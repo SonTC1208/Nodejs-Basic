@@ -1,22 +1,22 @@
-import connection from "../configs/connecDB";
+import pool from "../configs/connecDB";
 
 
-let getHomepage = (req, res) => {
-    //logic
-    let data = []
-    connection.query(
-        'SELECT * FROM `users`',
-        function (err, results, fields) {
-            console.log(results); // results contains rows returned by server
-            data = results.map((row) => { return row });
-            console.log('>>>check data inside:', data);
+let getHomepage = async (req, res) => {
+    const [rows, fields] = await pool.execute('SELECT * FROM users')
 
-            return res.render('index.ejs', { dataUser: data });
+    // console.log('>>> check rows', rows)
+    return res.render('index.ejs', { dataUser: rows });
 
-        }
-    );
 }
 
+let getDetailPage = async (req, res) => {
+    let userid = req.params.id;
+    let [user] = await pool.execute(`select * from users where id = ?`, [userid]);
+
+    return res.send(JSON.stringify(user))
+}
+
+
 module.exports = {
-    getHomepage
+    getHomepage, getDetailPage
 }
